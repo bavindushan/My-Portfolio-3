@@ -31,53 +31,41 @@ export default function Form() {
   const sendEmail = (params) => {
     const toastId = toast.loading("Sending your message, please wait...");
 
-    toast.info(
-      "Form submissions are demo-only here. Please checkout the final code repo to enable it. If you want to connect you can reach out to me via codebucks27@gmail.com.",
-      {
-        id: toastId,
-      }
-    );
-
-    // comment out the above toast.info and uncomment the below code to enable emailjs
-
-    // emailjs
-    //   .send(
-    //     process.env.NEXT_PUBLIC_SERVICE_ID,
-    //     process.env.NEXT_PUBLIC_TEMPLATE_ID,
-    //     params,
-    //     {
-    //       publicKey: process.env.NEXT_PUBLIC_PUBLIC_KEY,
-    //       limitRate: {
-    //         throttle: 5000, // you can not send more then 1 email per 5 seconds
-    //       },
-    //     }
-    //   )
-    //   .then(
-    //     () => {
-    //       toast.success(
-    //         "I have received your message, I will get back to you soon!",
-    //         {
-    //           id: toastId,
-    //         }
-    //       );
-    //     },
-    //     (error) => {
-    //       // console.log("FAILED...", error.text);
-    //       toast.error(
-    //         "There was an error sending your message, please try again later!",
-    //         {
-    //           id: toastId,
-    //         }
-    //       );
-    //     }
-    //   );
+    // Call the EmailJS service
+    emailjs
+      .send(
+        "service_q30nn9r", // Replace with your EmailJS service ID
+        "template_f7pbrnv", // Replace with your EmailJS template ID
+        params, // Template parameters (form data)
+        "ZZlw1VUIyqwMyEb1R" // Replace with your EmailJS user ID
+      )
+      .then(
+        () => {
+          toast.success(
+            "I have received your message, I will get back to you soon!",
+            {
+              id: toastId,
+            }
+          );
+        },
+        (error) => {
+          toast.error(
+            "There was an error sending your message, please try again later!",
+            {
+              id: toastId,
+            }
+          );
+          console.error("EmailJS Error:", error.text);
+        }
+      );
   };
 
   const onSubmit = (data) => {
     const templateParams = {
-      to_name: "CodeBucks",
-      from_name: data.name,
-      reply_to: data.email,
+      fullName: data.name,
+      email: data.email,
+      phone: data.phone,
+      subject: data.subject,
       message: data.message,
     };
 
@@ -97,12 +85,12 @@ export default function Form() {
         <motion.input
           variants={item}
           type="text"
-          placeholder="name"
+          placeholder="Name"
           {...register("name", {
             required: "This field is required!",
             minLength: {
               value: 3,
-              message: "Name should be atleast 3 characters long.",
+              message: "Name should be at least 3 characters long.",
             },
           })}
           className="w-full p-2 rounded-md shadow-lg text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 custom-bg"
@@ -112,10 +100,11 @@ export default function Form() {
             {errors.name.message}
           </span>
         )}
+
         <motion.input
           variants={item}
           type="email"
-          placeholder="email"
+          placeholder="Email"
           {...register("email", { required: "This field is required!" })}
           className="w-full p-2 rounded-md shadow-lg text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 custom-bg"
         />
@@ -124,9 +113,31 @@ export default function Form() {
             {errors.email.message}
           </span>
         )}
+
+        <motion.input
+          variants={item}
+          type="text"
+          placeholder="Phone (Optional)"
+          {...register("phone")}
+          className="w-full p-2 rounded-md shadow-lg text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 custom-bg"
+        />
+
+        <motion.input
+          variants={item}
+          type="text"
+          placeholder="Subject"
+          {...register("subject", { required: "This field is required!" })}
+          className="w-full p-2 rounded-md shadow-lg text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 custom-bg"
+        />
+        {errors.subject && (
+          <span className="inline-block self-start text-accent">
+            {errors.subject.message}
+          </span>
+        )}
+
         <motion.textarea
           variants={item}
-          placeholder="message"
+          placeholder="Message"
           {...register("message", {
             required: "This field is required!",
             maxLength: {
@@ -148,10 +159,8 @@ export default function Form() {
 
         <motion.input
           variants={item}
-          value="Cast your message!"
-          className="px-10 py-4 rounded-md shadow-lg bg-background border border-accent/30 border-solid
-      hover:shadow-glass-sm backdrop-blur-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 cursor-pointer capitalize
-      "
+          value="Send Message"
+          className="px-10 py-4 rounded-md shadow-lg bg-background border border-accent/30 border-solid hover:shadow-glass-sm backdrop-blur-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 cursor-pointer capitalize"
           type="submit"
         />
       </motion.form>
